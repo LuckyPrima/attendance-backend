@@ -8,14 +8,16 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-      - DB_USER=root
-      - DB_PASS=root
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
       - DB_HOST=db
       - DB_PORT=3306
       - DB_NAME=attendance_db
       - GIN_MODE=release
     depends_on:
-      - db
+      - db:
+        condition: service_healthy
+
     networks:
       - attendance-network
 
@@ -24,6 +26,11 @@ services:
     container_name: attendance-db
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=attendance_db
