@@ -19,7 +19,7 @@ import (
 func main() {
 	// Load .env
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("No .env file found, using system environment variables")
 	}
 
 	// Connect DB (pakai GORM dari config)
@@ -65,8 +65,14 @@ func main() {
 	// Routes
 	routes.SetupRoutes(r)
 
+	// Get port from environment variable or default to 8080
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	// Run server
-	if err := r.Run(":5000"); err != nil {
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
 }
